@@ -76,16 +76,6 @@ const TextInput = ({ value, oninput, small, type = 'text', placeholder = '' }: T
         )
     );
 }
-
-interface ButtonProps {
-    label: string;
-    onclick: () => void;
-}
-
-const Button = ({ label, onclick }: ButtonProps) => {
-    return H('button', { onclick }, label);
-}
-
 interface FieldProps {
     label: string;
     input: any;
@@ -163,8 +153,6 @@ interface AppState extends ParsedRequest {
     showToast: boolean;
     messageToast: string;
     selectedImageIndex: number;
-    widths: string[];
-    heights: string[];
     overrideUrl: URL | null;
 }
 
@@ -184,13 +172,10 @@ const App = (_: any, state: AppState, setState: SetState) => {
     };
     const {
         fileType = 'png',
-        fontSize = '100px',
+        fontSize = '120px',
         theme = 'light',
         md = true,
-        text = '**Hello** World',
-        images=[imageLightOptions[0].value],
-        widths=[],
-        heights=[],
+        title = '**Hello** World',
         showToast = false,
         messageToast = '',
         loading = true,
@@ -201,19 +186,10 @@ const App = (_: any, state: AppState, setState: SetState) => {
     const mdValue = md ? '1' : '0';
     const imageOptions = theme === 'light' ? imageLightOptions : imageDarkOptions;
     const url = new URL(window.location.origin);
-    url.pathname = `${encodeURIComponent(text)}.${fileType}`;
+    url.pathname = `${encodeURIComponent(title)}.${fileType}`;
     url.searchParams.append('theme', theme);
     url.searchParams.append('md', mdValue);
     url.searchParams.append('fontSize', fontSize);
-    for (let image of images) {
-        url.searchParams.append('images', image);
-    }
-    for (let width of widths) {
-        url.searchParams.append('widths', width);
-    }
-    for (let height of heights) {
-        url.searchParams.append('heights', height);
-    }
 
     return H('div',
         { className: 'split' },
@@ -226,10 +202,7 @@ const App = (_: any, state: AppState, setState: SetState) => {
                         options: themeOptions,
                         value: theme,
                         onchange: (val: Theme) => {
-                            const options = val === 'light' ? imageLightOptions : imageDarkOptions
-                            let clone = [...images];
-                            clone[0] = options[selectedImageIndex].value;
-                            setLoadingState({ theme: val, images: clone });
+                            setLoadingState({ theme: val });
                         }
                     })
                 }),
@@ -260,10 +233,10 @@ const App = (_: any, state: AppState, setState: SetState) => {
                 H(Field, {
                     label: 'Text Input',
                     input: H(TextInput, {
-                        value: text,
+                        value: title,
                         oninput: (val: string) => {
                             console.log('oninput ' + val);
-                            setLoadingState({ text: val, overrideUrl: url });
+                            setLoadingState({ title: val, overrideUrl: url });
                         }
                     })
                 }),
@@ -274,102 +247,11 @@ const App = (_: any, state: AppState, setState: SetState) => {
                             options: imageOptions,
                             value: imageOptions[selectedImageIndex].value,
                             onchange: (val: string) =>  {
-                                let clone = [...images];
-                                clone[0] = val;
                                 const selected = imageOptions.map(o => o.value).indexOf(val);
-                                setLoadingState({ images: clone, selectedImageIndex: selected });
+                                setLoadingState({ selectedImageIndex: selected });
                             }
                         }),
-                        H('div',
-                            { className: 'field-flex' },
-                            H(TextInput, {
-                                value: widths[0],
-                                type: 'number',
-                                placeholder: 'width',
-                                small: true,
-                                oninput: (val: string) =>  {
-                                    let clone = [...widths];
-                                    clone[0] = val;
-                                    setLoadingState({ widths: clone });
-                                }
-                            }),
-                            H(TextInput, {
-                                value: heights[0],
-                                type: 'number',
-                                placeholder: 'height',
-                                small: true,
-                                oninput: (val: string) =>  {
-                                    let clone = [...heights];
-                                    clone[0] = val;
-                                    setLoadingState({ heights: clone });
-                                }
-                            })
-                        )
                     ),
-                }),
-                ...images.slice(1).map((image, i) => H(Field, {
-                    label: `Image ${i + 2}`,
-                    input: H('div',
-                        H(TextInput, {
-                            value: image,
-                            oninput: (val: string) => {
-                                let clone = [...images];
-                                clone[i + 1] = val;
-                                setLoadingState({ images: clone, overrideUrl: url });
-                            }
-                        }),
-                        H('div',
-                            { className: 'field-flex' },
-                            H(TextInput, {
-                                value: widths[i + 1],
-                                type: 'number',
-                                placeholder: 'width',
-                                small: true,
-                                oninput: (val: string) =>  {
-                                    let clone = [...widths];
-                                    clone[i + 1] = val;
-                                    setLoadingState({ widths: clone });
-                                }
-                            }),
-                            H(TextInput, {
-                                value: heights[i + 1],
-                                type: 'number',
-                                placeholder: 'height',
-                                small: true,
-                                oninput: (val: string) =>  {
-                                    let clone = [...heights];
-                                    clone[i + 1] = val;
-                                    setLoadingState({ heights: clone });
-                                }
-                            })
-                        ),
-                        H('div',
-                            { className: 'field-flex' },
-                            H(Button, {
-                                label: `Remove Image ${i + 2}`,
-                                onclick: (e: MouseEvent) => {
-                                    e.preventDefault();
-                                    const filter = (arr: any[]) => [...arr].filter((_, n) => n !== i + 1);
-                                    const imagesClone = filter(images);
-                                    const widthsClone = filter(widths);
-                                    const heightsClone = filter(heights);
-                                    setLoadingState({ images: imagesClone, widths: widthsClone, heights: heightsClone });
-                                }
-                            })
-                        )
-                    )
-                })),
-                H(Field, {
-                    label: `Image ${images.length + 1}`,
-                    input: H(Button, {
-                        label: `Add Image ${images.length + 1}`,
-                        onclick: () => {
-                            const nextImage = images.length === 1
-                                ? 'https://cdn.jsdelivr.net/gh/remojansen/logo.ts@master/ts.svg'
-                                : '';
-                            setLoadingState({ images: [...images, nextImage] })
-                        }
-                    }),
                 }),
             )
         ),
