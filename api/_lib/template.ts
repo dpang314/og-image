@@ -8,6 +8,7 @@ const twOptions = { folder: 'svg', ext: '.svg' };
 const emojify = (text: string) => twemoji.parse(text, twOptions);
 
 const rglr = readFileSync(`${__dirname}/../_fonts/Inter-Regular.woff2`).toString('base64');
+const light = readFileSync(`${__dirname}/../_fonts/Inter-ExtraLight.woff2`).toString('base64');
 const bold = readFileSync(`${__dirname}/../_fonts/Inter-Bold.woff2`).toString('base64');
 const mono = readFileSync(`${__dirname}/../_fonts/Vera-Mono.woff2`).toString('base64');
 
@@ -21,7 +22,15 @@ function getCss(theme: string, fontSize: string) {
         foreground = 'white';
         radial = 'dimgray';
     }
+
     return `
+    @font-face {
+        font-family: 'Inter';
+        font-style:  normal;
+        font-weight: 200;
+        src: url(data:font/woff2;charset=utf-8;base64,${light}) format('woff2');
+    }
+
     @font-face {
         font-family: 'Inter';
         font-style:  normal;
@@ -44,14 +53,14 @@ function getCss(theme: string, fontSize: string) {
       }
 
     body {
+        font-family: 'Inter', sans-serif;
         background: ${background};
         background-image: radial-gradient(circle at 25px 25px, ${radial} 2%, transparent 0%), radial-gradient(circle at 75px 75px, ${radial} 2%, transparent 0%);
         background-size: 100px 100px;
         height: 100vh;
-        display: flex;
-        text-align: center;
-        align-items: center;
-        justify-content: center;
+        padding-left: 5vw;
+        padding-right: 5vw;
+        color: ${foreground};
     }
 
     code {
@@ -65,46 +74,90 @@ function getCss(theme: string, fontSize: string) {
         content: '\`';
     }
 
-    .logo-wrapper {
-        display: flex;
-        align-items: center;
-        align-content: center;
-        justify-content: center;
-        justify-items: center;
-    }
-
-    .logo {
-        margin: 0 75px;
-    }
-
-    .plus {
-        color: #BBB;
-        font-family: Times New Roman, Verdana;
-        font-size: 100px;
-    }
-
-    .spacer {
-        margin: 150px;
-    }
-
     .emoji {
         height: 1em;
         width: 1em;
         margin: 0 .05em 0 .1em;
         vertical-align: -0.1em;
     }
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    .author-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .author-image {
+        margin-right: 20px;
+    }
+
+    .author-name {
+        font-weight: 200;
+        font-size: 70px;
+    }
+
+    .spacer {
+        margin-bottom: 12.5vh;
+    }
+
+    .project-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .project-name {
+        font-size: 90px;
+        font-weight: 200;
+        margin-left: 20px;
+    }
+
+    .docusaurus-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-left: auto;
+        align-items: flex-end;
+    }
+
+    .version {
+        font-size: 80px;
+        font-weight: 200;
+    }
+
+    .docusaurus {
+        font-size: 60px;
+        font-weight: 200;
+    }
     
     .heading {
         font-family: 'Inter', sans-serif;
-        font-size: ${sanitizeHtml(fontSize)};
+        font-size: ${fontSize};
         font-style: normal;
-        color: ${foreground};
-        line-height: 1.8;
-    }`;
+    }
+    
+    .heading p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .end-spacer {
+        margin-top: 4vh;
+    }
+    `;
 }
 
 export function getHtml(parsedReq: ParsedRequest) {
-    const { text, theme, md, fontSize, images, widths, heights } = parsedReq;
+    const { title, theme, md, fontSize, logo, name, author, authorImage, version, docusaurus } = parsedReq;
     return `<!DOCTYPE html>
 <html>
     <meta charset="utf-8">
@@ -114,33 +167,43 @@ export function getHtml(parsedReq: ParsedRequest) {
         ${getCss(theme, fontSize)}
     </style>
     <body>
-        <div>
-            <div class="spacer">
-            <div class="logo-wrapper">
-                ${images.map((img, i) =>
-                    getPlusSign(i) + getImage(img, widths[i], heights[i])
-                ).join('')}
+        <div class="wrapper"> 
+            <div class="heading">
+                ${emojify(
+                    md ? marked(title) : sanitizeHtml(title)
+                )}
             </div>
-            <div class="spacer">
-            <div class="heading">${emojify(
-                md ? marked(text) : sanitizeHtml(text)
-            )}
+            <div class="author-wrapper">
+                ${authorImage ? getImage(authorImage, 'author-image', '130') : ''}
+                <div class="author-name">
+                    ${author ? author : ''}
+                </div>                
             </div>
+            <div class="spacer"></div>
+            <div class="project-wrapper">
+                ${logo ? getImage(logo, 'logo', '150') : ''}
+                <div class="project-name">
+                    ${name ? name : ''}
+                </div>
+                <div class="docusaurus-wrapper">
+                    <div class="version">
+                        ${version ? version : ''}
+                    </div>
+                    ${docusaurus ? '<div class="docusaurus"> made with Docusaurus</div>' : ''}
+                </div>
+            </div>
+            <div class="end-spacer"></div>
         </div>
     </body>
 </html>`;
 }
 
-function getImage(src: string, width ='auto', height = '225') {
+function getImage(src: string, htmlClass='', height: string, width='auto') {
     return `<img
-        class="logo"
+        class=${htmlClass}
         alt="Generated Image"
         src="${sanitizeHtml(src)}"
         width="${sanitizeHtml(width)}"
         height="${sanitizeHtml(height)}"
     />`
-}
-
-function getPlusSign(i: number) {
-    return i === 0 ? '' : '<div class="plus">+</div>';
 }
