@@ -157,7 +157,7 @@ function getCss(theme: string, fontSize: string) {
 }
 
 export function getHtml(parsedReq: ParsedRequest) {
-    const { title, theme, md, fontSize, logo, name, author, authorImage, version, docusaurus } = parsedReq;
+    const { title, theme, markdown, fontSize, projectLogo, projectName, authorName, authorImage, version, docusaurus } = parsedReq;
     return `<!DOCTYPE html>
 <html>
     <meta charset="utf-8">
@@ -170,20 +170,20 @@ export function getHtml(parsedReq: ParsedRequest) {
         <div class="wrapper"> 
             <div class="heading">
                 ${emojify(
-                    md ? marked(title) : sanitizeHtml(title)
+                    markdown ? marked(title) : sanitizeHtml(title)
                 )}
             </div>
             <div class="author-wrapper">
                 ${authorImage ? getImage(authorImage, 'author-image', '130') : ''}
                 <div class="author-name">
-                    ${author ? author : ''}
+                    ${authorName ? authorName : ''}
                 </div>                
             </div>
             <div class="spacer"></div>
             <div class="project-wrapper">
-                ${logo ? getImage(logo, 'logo', '150') : ''}
+                ${projectLogo ? getImage(projectLogo, 'logo', '150') : ''}
                 <div class="project-name">
-                    ${name ? name : ''}
+                    ${projectName ? projectName : ''}
                 </div>
                 <div class="docusaurus-wrapper">
                     <div class="version">

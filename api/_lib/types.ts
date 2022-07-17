@@ -5,11 +5,11 @@ export interface ParsedRequest {
     fileType: FileType;
     title: string;
     theme: Theme;
-    md: boolean;
+    markdown: boolean;
     fontSize: string;
-    logo?: string;
-    name?: string;
-    author?: string;
+    projectLogo?: string;
+    projectName?: string;
+    authorName?: string;
     authorImage?: string;
     version?: string;
     docusaurus: boolean;

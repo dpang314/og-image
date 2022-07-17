@@ -174,7 +174,7 @@ const App = (_: any, state: AppState, setState: SetState) => {
         fileType = 'png',
         fontSize = '120px',
         theme = 'light',
-        md = true,
+        markdown = true,
         title = '**Hello** World',
         showToast = false,
         messageToast = '',
@@ -183,7 +183,7 @@ const App = (_: any, state: AppState, setState: SetState) => {
         overrideUrl = null,
     } = state;
 
-    const mdValue = md ? '1' : '0';
+    const mdValue = markdown ? '1' : '0';
     const imageOptions = theme === 'light' ? imageLightOptions : imageDarkOptions;
     const url = new URL(window.location.origin);
     url.pathname = `${encodeURIComponent(title)}.${fileType}`;
@@ -227,7 +227,7 @@ const App = (_: any, state: AppState, setState: SetState) => {
                     input: H(Dropdown, {
                         options: markdownOptions,
                         value: mdValue,
-                        onchange: (val: string) => setLoadingState({ md: val === '1' })
+                        onchange: (val: string) => setLoadingState({ markdown: val === '1' })
                     })
                 }),
                 H(Field, {

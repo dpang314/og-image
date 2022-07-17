@@ -5,7 +5,7 @@ import { ParsedRequest } from './types';
 export function parseRequest(req: IncomingMessage) {
     console.log('HTTP ' + req.url);
     const { pathname, query } = parse(req.url || '/', true);
-    const { fontSize, theme, md, logo, name, author, authorImage, version, docusaurus } = (query || {});
+    const { fontSize, theme, markdown, projectLogo, projectName, authorName, authorImage, version, docusaurus } = (query || {});
 
     if (Array.isArray(fontSize)) {
         throw new Error('Expected a single fontSize');
@@ -13,13 +13,13 @@ export function parseRequest(req: IncomingMessage) {
     if (Array.isArray(theme)) {
         throw new Error('Expected a single theme');
     }
-    if (Array.isArray(logo)) {
+    if (Array.isArray(projectLogo)) {
         throw new Error('Expected a single logo');
     }
-    if (Array.isArray(name)) {
+    if (Array.isArray(projectName)) {
         throw new Error('Expected a single name');
     }
-    if (Array.isArray(author)) {
+    if (Array.isArray(authorName)) {
         throw new Error('Expected a single author');
     }
     if (Array.isArray(authorImage)) {
@@ -45,11 +45,11 @@ export function parseRequest(req: IncomingMessage) {
         fileType: extension === 'jpeg' ? extension : 'png',
         title: decodeURIComponent(title),
         theme: theme === 'dark' ? 'dark' : 'light',
-        md: md === '1' || md === 'true',
+        markdown: markdown === '1' || markdown === 'true',
         fontSize: fontSize || '140px',
-        logo: logo ? decodeURIComponent(logo) : undefined,
-        name: name ? decodeURIComponent(name) : undefined,
-        author: author ? decodeURIComponent(author) : undefined,
+        projectLogo: projectLogo ? decodeURIComponent(projectLogo) : undefined,
+        projectName: projectName ? decodeURIComponent(projectName) : undefined,
+        authorName: authorName ? decodeURIComponent(authorName) : undefined,
         authorImage: authorImage ? decodeURIComponent(authorImage) : undefined,
         version: version ? decodeURIComponent(version) : undefined,
         docusaurus: !docusaurus || (docusaurus != '0' && docusaurus != 'false'),
