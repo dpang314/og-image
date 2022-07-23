@@ -98,6 +98,7 @@ function getCss(theme: string, fontSize: string) {
 
     .author-image {
         margin-right: 20px;
+        border-radius: 50%;
     }
 
     .author-name {
